@@ -1,0 +1,8 @@
+﻿{
+  "agentId": 18,
+  "agentName": "NavneetAgent2",
+  "poolId": 1,
+  "poolName": "Default",
+  "serverUrl": "https://dev.azure.com/navneetrajpushp/",
+  "workFolder": "_work"
+}
