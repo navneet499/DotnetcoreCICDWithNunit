@@ -7,7 +7,7 @@ trigger:
 - main
 
 pool:
-  vmImage: agent2
+  name: 'NavneetAgent'
 
 steps:
 - script: echo Hello, Navneet!
