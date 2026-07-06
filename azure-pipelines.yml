@@ -7,10 +7,10 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: agent2
 
 steps:
-- script: echo Hello, world!
+- script: echo Hello, Navneet!
   displayName: 'Run a one-line script'
 
 - script: |
