@@ -26,27 +26,27 @@ steps:
   displayName: Restore
   inputs:
     command: restore
-    projects: 'ProductService/ProductService.csproj'
+    projects: '*/.csproj'
 
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
     command: build
-    projects: 'ProductService/ProductService.csproj'
+    projects: '*/.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: test
-    projects: 'ProductTest/ProductTest.csproj'
+    projects: '*/.csproj'
 
 - task: DotNetCoreCLI@2
   displayName: Publish
   inputs:
     command: publish
     publishWebProjects: false
-    projects: 'ProductService/ProductService.csproj'
+    projects: '*/.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: true
 
