@@ -2,32 +2,35 @@ trigger:
 - main
 
 pool:
-  name: NavneetAgent
+  vmImage: 'windows-latest'
 
 variables:
   BuildConfiguration: Release
 
 steps:
-
 - checkout: self
 
+# Install .NET 10 SDK
 - task: UseDotNet@2
   displayName: 'Install .NET 10 SDK'
   inputs:
     packageType: sdk
     version: '10.0.x'
 
+# Verify repo structure
 - powershell: |
     Write-Host "Build.SourcesDirectory=$(Build.SourcesDirectory)"
     Get-ChildItem "$(Build.SourcesDirectory)" -Recurse | Select-Object FullName
   displayName: 'List Repository Files'
 
+# Restore
 - task: DotNetCoreCLI@2
   displayName: 'Restore ProductService'
   inputs:
     command: restore
     projects: '**/ProductService.csproj'
 
+# Build
 - task: DotNetCoreCLI@2
   displayName: 'Build ProductService'
   inputs:
@@ -35,6 +38,7 @@ steps:
     projects: '**/ProductService.csproj'
     arguments: '--configuration $(BuildConfiguration)'
 
+# Test
 - task: DotNetCoreCLI@2
   displayName: 'Run Unit Tests'
   inputs:
@@ -42,6 +46,7 @@ steps:
     projects: '**/ProductTest.csproj'
     arguments: '--configuration $(BuildConfiguration)'
 
+# Publish
 - task: DotNetCoreCLI@2
   displayName: 'Publish ProductService'
   inputs:
@@ -51,6 +56,7 @@ steps:
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: true
 
+# Deploy
 - task: AzureWebApp@1
   displayName: 'Deploy to Azure'
   inputs:
