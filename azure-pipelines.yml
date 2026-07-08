@@ -5,74 +5,54 @@ pool:
   name: NavneetAgent
 
 variables:
-  BuildConfiguration: 'Release'
-  AzureSubscription: 'MyServiceConnection'
-  WebAppName: 'NavneetWebApp'
+  BuildConfiguration: Release
 
 steps:
 
-# Checkout source code
 - checkout: self
-  clean: true
 
-# Install .NET 10 SDK
 - task: UseDotNet@2
   displayName: 'Install .NET 10 SDK'
   inputs:
-    packageType: 'sdk'
+    packageType: sdk
     version: '10.0.x'
 
-# Display repository structure (for troubleshooting)
-- script: |
-    echo Repository Location:
-    echo $(Build.SourcesDirectory)
-    dir "$(Build.SourcesDirectory)" /s
-  displayName: 'Show Repository Structure'
+- powershell: |
+    Write-Host "Build.SourcesDirectory=$(Build.SourcesDirectory)"
+    Get-ChildItem "$(Build.SourcesDirectory)" -Recurse | Select-Object FullName
+  displayName: 'List Repository Files'
 
-# Restore Solution
 - task: DotNetCoreCLI@2
-  displayName: 'Restore Solution'
+  displayName: 'Restore ProductService'
   inputs:
-    command: 'restore'
-    projects: 'CICD.slnx'
+    command: restore
+    projects: '**/ProductService.csproj'
 
-# Build Solution
 - task: DotNetCoreCLI@2
-  displayName: 'Build Solution'
+  displayName: 'Build ProductService'
   inputs:
-    command: 'build'
-    projects: 'CICD.slnx'
+    command: build
+    projects: '**/ProductService.csproj'
     arguments: '--configuration $(BuildConfiguration)'
 
-# Execute Unit Tests
 - task: DotNetCoreCLI@2
   displayName: 'Run Unit Tests'
   inputs:
-    command: 'test'
-    projects: 'ProductTest/ProductTest.csproj'
-    arguments: '--configuration $(BuildConfiguration) --no-build'
+    command: test
+    projects: '**/ProductTest.csproj'
+    arguments: '--configuration $(BuildConfiguration)'
 
-# Publish Web API
 - task: DotNetCoreCLI@2
-  displayName: 'Publish Web API'
+  displayName: 'Publish ProductService'
   inputs:
-    command: 'publish'
+    command: publish
     publishWebProjects: false
-    projects: 'ProductService/ProductService.csproj'
+    projects: '**/ProductService.csproj'
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: true
 
-# Publish Artifact
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
-
-# Deploy to Azure Web App
 - task: AzureWebApp@1
-  displayName: 'Deploy to Azure Web App'
+  displayName: 'Deploy to Azure'
   inputs:
     azureSubscription: 'MyServiceConnection'
     appName: 'NavneetWebApp'
