@@ -28,14 +28,14 @@ steps:
   displayName: 'Restore ProductService'
   inputs:
     command: restore
-    projects: '**/ProductService.csproj'
+    projects: '**/src/ProductService/ProductService.csproj'
 
 # Build
 - task: DotNetCoreCLI@2
   displayName: 'Build ProductService'
   inputs:
     command: build
-    projects: '**/ProductService.csproj'
+    projects: '**/src/ProductService/ProductService.csproj'
     arguments: '--configuration $(BuildConfiguration)'
 
 # Test
@@ -43,7 +43,7 @@ steps:
   displayName: 'Run Unit Tests'
   inputs:
     command: test
-    projects: '**/ProductTest.csproj'
+    projects: '**/src/ProductTest/ProductTest.csproj'
     arguments: '--configuration $(BuildConfiguration)'
 
 # Publish
@@ -52,7 +52,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: false
-    projects: '**/ProductService.csproj'
+    projects: '**/src/ProductService/ProductService.csproj'
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: true
 
