@@ -5,78 +5,59 @@ pool:
   name: NavneetAgent
 
 variables:
-
-  BuildConfiguration: 'Release'
-  AzureSubscription: 'MyServiceConnection'
-  WebAppName: 'NavneetWebApp'
+  buildConfiguration: 'Release'
+  azureSubscription: 'MyServiceConnection'
+  webAppName: 'NavneetWebApp'
 
 steps:
 
-# Install .NET SDK
-
 - task: UseDotNet@2
-  displayName: Install .NET SDK
-
+  displayName: Install .NET 10 SDK
   inputs:
     packageType: sdk
-    version: '8.x'
+    version: '10.0.x'
 
-# Restore
+- script: |
+    echo Repository Contents
+    dir $(Build.SourcesDirectory) /s
+  displayName: List Files
 
 - task: DotNetCoreCLI@2
-  displayName: Restore Packages
-
+  displayName: Restore
   inputs:
     command: restore
-    projects: '**/*.csproj'
-
-# Build
+    projects: 'ProductService/ProductService.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: Build Project
-
+  displayName: Build
   inputs:
     command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration $(BuildConfiguration)'
-
-# Run Unit Tests
+    projects: 'ProductService/ProductService.csproj'
+    arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  displayName: Run Unit Tests
-
+  displayName: Test
   inputs:
     command: test
-    projects: '**/*Test.csproj'
-    arguments: '--configuration $(BuildConfiguration)'
-
-# Publish
+    projects: 'ProductTest/ProductTest.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: Publish Web API
-
+  displayName: Publish
   inputs:
     command: publish
     publishWebProjects: false
-    projects: '**/ProductService.csproj'
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    projects: 'ProductService/ProductService.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: true
 
-# Publish Artifact
-
 - task: PublishBuildArtifacts@1
-  displayName: Publish Build Artifact
-
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: drop
 
-# Deploy Azure Web App
-
 - task: AzureWebApp@1
-  displayName: Deploy to Azure Web App
-
+  displayName: Deploy
   inputs:
-    azureSubscription: $(AzureSubscription)
-    appName: $(WebAppName)
+    azureSubscription: 'MyServiceConnection'
+    appName: 'NavneetWebApp'
     package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
